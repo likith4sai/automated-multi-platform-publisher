@@ -26,3 +26,17 @@ class Publisher(Protocol):
     async def publish(self, request: PostingRequest) -> PublishReceipt:
         """Publish a message and return the resulting publication details."""
         ...
+
+
+class UnavailablePublisher:
+    """Fallback publisher used when a platform cannot be initialized."""
+
+    def __init__(self, name: str, error_message: str) -> None:
+        self.name = name
+        self._error_message = error_message
+
+    async def publish(self, request: PostingRequest) -> PublishReceipt:
+        raise PlatformPublishError(self._error_message)
+
+    async def close(self) -> None:
+        """No resources were created, so there is nothing to close."""

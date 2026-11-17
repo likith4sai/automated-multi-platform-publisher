@@ -125,6 +125,10 @@ class BlueskyPublisher:
 
             return client
 
+    async def verify_configuration(self) -> None:
+        """Verify account credentials without publishing a post."""
+        await self._get_client()
+
     @staticmethod
     def _read_public_post(
         payload: dict,
@@ -202,7 +206,6 @@ class BlueskyPublisher:
     ) -> PublishReceipt:
         client = await self._get_client()
 
-        submitted_at = datetime.now(UTC)
         post_text = self._build_post_text(request)
 
         try:
@@ -247,7 +250,7 @@ class BlueskyPublisher:
 
         return PublishReceipt(
             posted_url=posted_url,
-            published_at=published_at or submitted_at,
+            published_at=published_at,
             public_access=is_public,
         )
 

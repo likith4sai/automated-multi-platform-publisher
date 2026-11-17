@@ -1,0 +1,50 @@
+﻿{
+    "success":  true,
+    "results":  [
+                    {
+                        "platform":  "Bluesky",
+                        "status":  "success",
+                        "posted_url":  "https://bsky.app/profile/likithsai.bsky.social/post/3n2j6utrc5b2p",
+                        "public_access":  true,
+                        "date":  "2026-11-17",
+                        "time":  "13:52:45.101119",
+                        "error":  null
+                    },
+                    {
+                        "platform":  "Telegram",
+                        "status":  "success",
+                        "posted_url":  "https://t.me/assessment_test/3",
+                        "public_access":  true,
+                        "date":  "2026-11-17",
+                        "time":  "13:52:45",
+                        "error":  null
+                    },
+                    {
+                        "platform":  "Mastodon",
+                        "status":  "success",
+                        "posted_url":  "https://mastodon.social/@likithsai007/117632110723675559",
+                        "public_access":  true,
+                        "date":  "2026-11-17",
+                        "time":  "13:52:44.509000",
+                        "error":  null
+                    },
+                    {
+                        "platform":  "Misskey",
+                        "status":  "success",
+                        "posted_url":  "https://misskey.social/notes/atobgk0uqr",
+                        "public_access":  true,
+                        "date":  "2026-11-17",
+                        "time":  "13:52:45.150000",
+                        "error":  null
+                    },
+                    {
+                        "platform":  "Lemmy",
+                        "status":  "success",
+                        "posted_url":  "https://lemmy.zip/post/75178660",
+                        "public_access":  true,
+                        "date":  "2026-11-17",
+                        "time":  "13:52:46.045912",
+                        "error":  null
+                    }
+                ]
+}

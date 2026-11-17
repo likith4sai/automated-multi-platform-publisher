@@ -10,6 +10,7 @@ not call any publish/create-post endpoint and does not create public content.
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
@@ -20,6 +21,8 @@ from app.platforms.lemmy import LemmyPublisher
 from app.platforms.mastodon import MastodonPublisher
 from app.platforms.misskey import MisskeyPublisher
 from app.platforms.telegram import TelegramPublisher
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -38,9 +41,7 @@ def secret_value(value: object | None) -> str | None:
 
 
 def verify_bluesky(publisher: object) -> Awaitable[object]:
-    # Bluesky login/profile initialization is the adapter's authentication
-    # preflight; there is no separate public verify_configuration method.
-    return publisher._get_client()  # noqa: SLF001
+    return publisher.verify_configuration()
 
 
 def verify_standard(publisher: object) -> Awaitable[object]:
@@ -112,7 +113,7 @@ async def run_one(
         )
     except (PlatformPublishError, ValueError) as exc:
         return check.name, False, str(exc)
-    except Exception as exc:  # keep one provider issue isolated from the others
+    except Exception as exc:  # noqa: BLE001 - isolate unexpected provider failures
         return (
             check.name,
             False,
@@ -124,9 +125,12 @@ async def run_one(
             if callable(close):
                 try:
                     await close()
-                except Exception:
-                    # Cleanup must not hide the provider check result.
-                    pass
+                except Exception as exc:  # noqa: BLE001 - cleanup must not mask check result
+                    logger.warning(
+                        "Failed to close %s publisher (%s).",
+                        check.name,
+                        type(exc).__name__,
+                    )
 
 
 async def main() -> int:
@@ -141,8 +145,7 @@ async def main() -> int:
         "It does not prove all provider write scopes."
     )
     print(
-        "Publishing API key: "
-        + ("CONFIGURED" if api_key_ready else "MISSING / EMPTY")
+        "Publishing API key: " + ("CONFIGURED" if api_key_ready else "MISSING / EMPTY")
     )
 
     results = await asyncio.gather(

@@ -85,6 +85,32 @@ async def test_publish_builds_clickable_cta_facet(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_publish_returns_none_when_public_timestamp_is_unavailable(
+    monkeypatch,
+):
+    fake_client = FakeBlueskyClient()
+    publisher = BlueskyPublisher(
+        handle="demo.bsky.social",
+        app_password="test-app-password",
+        client_factory=lambda: fake_client,
+    )
+    monkeypatch.setattr(
+        publisher,
+        "_verify_public_access",
+        AsyncMock(return_value=(False, None)),
+    )
+    request = PostingRequest(message="Visit https://example.com")
+
+    receipt = await publisher.publish(request)
+
+    assert receipt.posted_url == (
+        "https://bsky.app/profile/demo.bsky.social/post/3abc1"
+    )
+    assert receipt.public_access is False
+    assert receipt.published_at is None
+
+
+@pytest.mark.asyncio
 async def test_login_is_reused_across_publications(monkeypatch):
     fake_client = FakeBlueskyClient()
 

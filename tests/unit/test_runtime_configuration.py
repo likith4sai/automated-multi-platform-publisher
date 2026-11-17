@@ -2,7 +2,8 @@ import pytest
 from atproto import AsyncClient
 
 from app.config import Settings
-from app.main import create_app
+from app.main import _create_publisher_safely, create_app
+from app.platforms.base import PlatformPublishError, UnavailablePublisher
 from app.platforms.bluesky import create_bluesky_client
 from app.platforms.lemmy import (
     create_lemmy_api_client,
@@ -12,6 +13,7 @@ from app.platforms.telegram import (
     create_telegram_http_client,
     create_telegram_verification_client,
 )
+from app.schemas import PostingRequest
 
 
 def test_settings_load_credentials_from_environment(monkeypatch):
@@ -49,6 +51,23 @@ async def test_default_application_lifespan_starts_without_network():
 
     async with application.router.lifespan_context(application):
         assert application.state.posting_service is not None
+
+
+@pytest.mark.asyncio
+async def test_failed_publisher_initialization_uses_unavailable_publisher():
+    def fail_to_initialize():
+        raise RuntimeError("private initialization details")
+
+    publisher = _create_publisher_safely("Bluesky", fail_to_initialize)
+
+    assert isinstance(publisher, UnavailablePublisher)
+    assert publisher.name == "Bluesky"
+    with pytest.raises(
+        PlatformPublishError,
+        match="Bluesky integration could not be initialized",
+    ):
+        await publisher.publish(PostingRequest(message="Visit https://example.com"))
+    await publisher.close()
 
 
 @pytest.mark.asyncio

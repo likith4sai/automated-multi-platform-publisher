@@ -248,6 +248,65 @@ A reviewer who does not have platform credentials can still inspect the adapters
 - Lemmy-specific configuration and preflight: [`docs/LEMMY_SETUP.md`](docs/LEMMY_SETUP.md).
 - Requirement-to-implementation mapping: [`docs/ASSESSMENT_COMPLIANCE.md`](docs/ASSESSMENT_COMPLIANCE.md).
 
+
+## Application screenshots
+
+The following screenshots were captured from the running local application
+and its actual test execution.
+
+### Swagger API documentation
+
+![Swagger API documentation](docs/screenshots/01-swagger-api-documentation.png)
+
+### Valid publishing request
+
+![Valid publishing request](docs/screenshots/02-valid-posting-request.png)
+
+### Combined multi-platform response
+
+![Multi-platform response](docs/screenshots/03-multi-platform-response.png)
+
+### Independent platform failure handling
+
+![Failure isolation tests](docs/screenshots/04-platform-failure-isolation.png)
+
+### Request validation
+
+![Validation error](docs/screenshots/05-validation-error.png)
+
+## Live platform publication screenshots
+
+The following screenshots provide visual evidence of posts published
+to the configured third-party platforms.
+
+### Bluesky
+
+![Published post on Bluesky](docs/screenshots/06-platform-bluesky.png)
+
+### Telegram
+
+![Published message on Telegram](docs/screenshots/07-platform-telegram.png)
+
+### Mastodon
+
+![Published status on Mastodon](docs/screenshots/08-platform-mastodon.png)
+
+### Misskey
+
+![Published note on Misskey](docs/screenshots/09-platform-misskey.png)
+
+### Lemmy
+
+![Published community post on Lemmy](docs/screenshots/10-platform-lemmy.png)
+
+The complete request and response from the combined live publishing
+test are available in `docs/evidence/`.
+
+The live response contains the individual publication status, resulting
+permalink, public accessibility verification and any platform-specific
+errors.
+
+
 ## Security notes
 
 - `.env` contains secrets and must remain untracked.

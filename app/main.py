@@ -1,5 +1,6 @@
 import logging
 import secrets
+from collections.abc import Callable
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -14,6 +15,7 @@ from fastapi import (
 from fastapi.security import APIKeyHeader
 
 from app.config import Settings
+from app.platforms.base import Publisher, UnavailablePublisher
 from app.platforms.bluesky import BlueskyPublisher
 from app.platforms.lemmy import LemmyPublisher
 from app.platforms.mastodon import MastodonPublisher
@@ -73,6 +75,28 @@ def get_posting_service(request: Request) -> PostingService:
     return service
 
 
+def _create_publisher_safely(
+    name: str,
+    factory: Callable[[], Publisher],
+) -> Publisher:
+    """Create one publisher without allowing its failure to block others."""
+    try:
+        return factory()
+    except Exception as exc:  # noqa: BLE001
+        logger.error(
+            "Failed to initialize %s publisher (%s)",
+            name,
+            type(exc).__name__,
+        )
+        return UnavailablePublisher(
+            name=name,
+            error_message=(
+                f"{name} integration could not be initialized "
+                "because its configuration is invalid."
+            ),
+        )
+
+
 def create_app(
     posting_service: PostingService | None = None,
     settings: Settings | None = None,
@@ -117,42 +141,47 @@ def create_app(
                     else None
                 )
 
-                bluesky_publisher = BlueskyPublisher(
-                    handle=config.bluesky_handle,
-                    app_password=bluesky_password,
-                )
-
-                telegram_publisher = TelegramPublisher(
-                    bot_token=telegram_token,
-                    channel_username=config.telegram_channel_username,
-                )
-
-                mastodon_publisher = MastodonPublisher(
-                    base_url=config.mastodon_base_url,
-                    account_handle=config.mastodon_account_handle,
-                    access_token=mastodon_token,
-                )
-
-                misskey_publisher = MisskeyPublisher(
-                    base_url=config.misskey_base_url,
-                    account_username=config.misskey_username,
-                    access_token=misskey_token,
-                )
-
-                lemmy_publisher = LemmyPublisher(
-                    base_url=config.lemmy_base_url,
-                    username=config.lemmy_username,
-                    password=lemmy_password,
-                    community_name=config.lemmy_community_name,
-                )
-
                 managed_publishers.extend(
                     [
-                        bluesky_publisher,
-                        telegram_publisher,
-                        mastodon_publisher,
-                        misskey_publisher,
-                        lemmy_publisher,
+                        _create_publisher_safely(
+                            "Bluesky",
+                            lambda: BlueskyPublisher(
+                                handle=config.bluesky_handle,
+                                app_password=bluesky_password,
+                            ),
+                        ),
+                        _create_publisher_safely(
+                            "Telegram",
+                            lambda: TelegramPublisher(
+                                bot_token=telegram_token,
+                                channel_username=config.telegram_channel_username,
+                            ),
+                        ),
+                        _create_publisher_safely(
+                            "Mastodon",
+                            lambda: MastodonPublisher(
+                                base_url=config.mastodon_base_url,
+                                account_handle=config.mastodon_account_handle,
+                                access_token=mastodon_token,
+                            ),
+                        ),
+                        _create_publisher_safely(
+                            "Misskey",
+                            lambda: MisskeyPublisher(
+                                base_url=config.misskey_base_url,
+                                account_username=config.misskey_username,
+                                access_token=misskey_token,
+                            ),
+                        ),
+                        _create_publisher_safely(
+                            "Lemmy",
+                            lambda: LemmyPublisher(
+                                base_url=config.lemmy_base_url,
+                                username=config.lemmy_username,
+                                password=lemmy_password,
+                                community_name=config.lemmy_community_name,
+                            ),
+                        ),
                     ]
                 )
 

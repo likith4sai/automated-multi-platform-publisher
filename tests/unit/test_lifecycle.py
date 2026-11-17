@@ -5,6 +5,8 @@ from pydantic import SecretStr
 
 from app.config import Settings
 from app.main import create_app
+from app.platforms.base import PlatformPublishError, UnavailablePublisher
+from app.schemas import PostingRequest
 from app.services.posting_service import PostingService
 
 
@@ -214,3 +216,89 @@ async def test_lifespan_preserves_injected_service():
 
     async with application.router.lifespan_context(application):
         assert application.state.posting_service is existing_service
+
+
+@pytest.mark.asyncio
+async def test_lifespan_continues_when_publisher_initialization_fails(monkeypatch):
+    import app.main as main_module
+
+    FakeBlueskyPublisher.instances.clear()
+    FakeTelegramPublisher.instances.clear()
+    FakeMisskeyPublisher.instances.clear()
+    FakeLemmyPublisher.instances.clear()
+
+    def fail_mastodon_initialization(**kwargs):
+        raise ValueError("invalid Mastodon configuration")
+
+    monkeypatch.setattr(
+        main_module,
+        "BlueskyPublisher",
+        FakeBlueskyPublisher,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "TelegramPublisher",
+        FakeTelegramPublisher,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "MastodonPublisher",
+        fail_mastodon_initialization,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "MisskeyPublisher",
+        FakeMisskeyPublisher,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "LemmyPublisher",
+        FakeLemmyPublisher,
+    )
+
+    settings = Settings(
+        _env_file=None,
+        bluesky_handle="test.bsky.social",
+        bluesky_app_password=SecretStr("bluesky-test-password"),
+        telegram_bot_token=SecretStr("telegram-test-token"),
+        telegram_channel_username="test_channel",
+        mastodon_base_url="invalid-url",
+        mastodon_account_handle="testaccount",
+        mastodon_access_token=SecretStr("mastodon-test-token"),
+        misskey_base_url="https://misskey.example",
+        misskey_username="testuser",
+        misskey_access_token=SecretStr("misskey-test-token"),
+        lemmy_base_url="https://lemmy.example",
+        lemmy_username="testlemmy",
+        lemmy_password=SecretStr("lemmy-test-password"),
+        lemmy_community_name="testcommunity",
+    )
+    application = create_app(settings=settings)
+
+    async with application.router.lifespan_context(application):
+        publishers = application.state.posting_service._publishers
+        assert len(publishers) == 5
+        assert [publisher.name for publisher in publishers] == [
+            "Bluesky",
+            "Telegram",
+            "Mastodon",
+            "Misskey",
+            "Lemmy",
+        ]
+        assert isinstance(publishers[2], UnavailablePublisher)
+        with pytest.raises(
+            PlatformPublishError,
+            match="could not be initialized",
+        ):
+            await publishers[2].publish(
+                PostingRequest(message="Visit https://example.com")
+            )
+        assert len(FakeBlueskyPublisher.instances) == 1
+        assert len(FakeTelegramPublisher.instances) == 1
+        assert len(FakeMisskeyPublisher.instances) == 1
+        assert len(FakeLemmyPublisher.instances) == 1
+
+    assert FakeBlueskyPublisher.instances[0].closed
+    assert FakeTelegramPublisher.instances[0].closed
+    assert FakeMisskeyPublisher.instances[0].closed
+    assert FakeLemmyPublisher.instances[0].closed
