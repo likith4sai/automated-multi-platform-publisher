@@ -201,6 +201,46 @@ Final pre-submission validation on 17 November 2026:
 
 These results were recorded on the reviewed source snapshot before the initial GitHub push.
 
+
+## Reviewer verification
+
+A reviewer can verify the project in three stages.
+
+### 1. Run the automated tests
+
+After installing the dependencies, run:
+
+```powershell
+python -m pytest -q
+python -m ruff check app tests scripts
+python -m ruff format --check app tests scripts
+python -m pip check
+```
+
+The recorded final pre-submission run is listed above. These unit tests use mocked platform responses for deterministic checks; they do not require the reviewer's personal platform credentials.
+
+### 2. Check platform authentication without publishing
+
+Copy `.env.example` to `.env` and configure credentials for the accounts and destinations being checked. Then run:
+
+```powershell
+python -m scripts.check_platform_connections
+```
+
+This command checks authentication and destination access for Bluesky, Telegram, Mastodon, Misskey and Lemmy where supported. It does **not** call any post-creation or message-send endpoint. It does not prove every provider write scope; those scopes can only be conclusively established by a real publish operation.
+
+The check reads credentials from the local `.env`. Never commit that file or share its values.
+
+### 3. Start and inspect the API
+
+Start the server with the command above, then check:
+
+- `GET /health` confirms that the FastAPI process is responding. It does not represent the health of the five external platforms.
+- `/docs` exposes the interactive API contract.
+- `POST /posting` requires the `X-API-Key` header and performs real publishing. Each successful platform can create public content; do not use it as a repeated health check.
+
+A reviewer who does not have platform credentials can still inspect the adapters, run the mocked unit suite and follow the dated public-post links in the integration evidence.
+
 ## Evidence
 
 - Live platform test outcomes and public links: [`docs/INTEGRATION_TESTS.md`](docs/INTEGRATION_TESTS.md).
