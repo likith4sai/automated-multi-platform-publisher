@@ -4,23 +4,23 @@ This file records the evidence available from the development sessions. The live
 
 ## Automated quality checks
 
-Latest recorded full regression run before submission documentation:
+Final pre-submission regression run (17 November 2026):
 
 ```text
 python -m pytest -q
-105 passed in 37.17s
+108 passed in 15.17s
 
 python -m ruff check app tests scripts
 All checks passed!
 
 python -m ruff format --check app tests scripts
-26 files already formatted
+27 files already formatted
 
 python -m pip check
 No broken requirements found.
 ```
 
-Re-run these commands after any code edits and update this file with the final output. These results are historical evidence from the reported run, not a substitute for the final pre-submission run.
+These results were recorded on the reviewed source snapshot immediately before the initial GitHub push.
 
 ## Live publishing checks
 
