@@ -8,13 +8,13 @@ Final pre-submission regression run (17 November 2026):
 
 ```text
 python -m pytest -q
-108 passed in 15.17s
+111 passed in 26.72s
 
 python -m ruff check app tests scripts
 All checks passed!
 
 python -m ruff format --check app tests scripts
-27 files already formatted
+28 files already formatted
 
 python -m pip check
 No broken requirements found.
@@ -70,4 +70,3 @@ The tested `lemmy.zip` server identified itself as `lemmy 0.19.21-dotzip.8`. The
 - The original individual Mastodon run is linked to the account timeline; the combined run's direct status permalink is recorded in the response file and linked above.
 - The combined response captures one `/posting` request and its individual result for each of the five platforms; it confirms that all five succeeded and were publicly accessible in that run.
 - Screenshots of the Swagger request/response, validation and failure-isolation behavior, and live platform posts are included in `docs/screenshots/`.
-

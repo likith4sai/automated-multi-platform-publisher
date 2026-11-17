@@ -194,9 +194,9 @@ python -m pip check
 
 Final pre-submission validation on 17 November 2026:
 
-- Pytest: **108 passed in 15.17 seconds**
+- Pytest: **111 passed in 26.72 seconds**
 - Ruff lint: all checks passed
-- Ruff formatting: 27 files already formatted
+- Ruff formatting: 28 files already formatted
 - Dependency check: no broken requirements found
 
 These results were recorded on the reviewed source snapshot before the initial GitHub push.
