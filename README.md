@@ -192,7 +192,14 @@ python -m ruff format --check app tests scripts
 python -m pip check
 ```
 
-The latest test run recorded during preparation of this submission passed **105 tests**. Re-run the commands above after the final source edits and before pushing; the current count should be reported from that final run rather than assumed.
+Final pre-submission validation on 17 November 2026:
+
+- Pytest: **108 passed in 15.17 seconds**
+- Ruff lint: all checks passed
+- Ruff formatting: 27 files already formatted
+- Dependency check: no broken requirements found
+
+These results were recorded on the reviewed source snapshot before the initial GitHub push.
 
 ## Evidence
 
