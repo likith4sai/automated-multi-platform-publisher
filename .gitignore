@@ -23,3 +23,6 @@ dist/
 apply_lemmy_v3_compat_patch.ps1
 final-review-source.txt
 PATCH_NOTES*.md
+_submission_bundle/
+*.patch
+prepare_submission_staging*.ps1
