@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "results": [
+    {
+      "platform": "bluesky",
+      "status": "success",
+      "posted_url": "https://posts.example.test/bluesky/123",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "09:30:00",
+      "error": null
+    },
+    {
+      "platform": "telegram",
+      "status": "success",
+      "posted_url": "https://posts.example.test/telegram/123",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "09:30:01",
+      "error": null
+    },
+    {
+      "platform": "mastodon",
+      "status": "failed",
+      "posted_url": null,
+      "public_access": false,
+      "date": null,
+      "time": null,
+      "error": "Example only: platform authorization failed."
+    },
+    {
+      "platform": "misskey",
+      "status": "success",
+      "posted_url": "https://posts.example.test/misskey/123",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "09:30:02",
+      "error": null
+    },
+    {
+      "platform": "lemmy",
+      "status": "success",
+      "posted_url": "https://posts.example.test/lemmy/123",
+      "public_access": true,
+      "date": "2026-11-17",
+      "time": "09:30:03",
+      "error": null
+    }
+  ]
+}

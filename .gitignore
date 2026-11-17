@@ -1,0 +1,25 @@
+# Python environments and generated files
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+
+# Build outputs
+build/
+dist/
+
+# Local development artifacts (do not submit patch archives or backups)
+*.bak
+*.zip
+apply_lemmy_v3_compat_patch.ps1
+final-review-source.txt
+PATCH_NOTES*.md
